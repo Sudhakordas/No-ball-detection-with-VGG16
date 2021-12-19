@@ -26,8 +26,6 @@ print('@@ Model loaded')
  
  
 def pred_mode(img):
-  #gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
   test_image = load_img(img, target_size = (100, 100)) # load image 
   print("@@ Got Image for prediction")
    
@@ -41,7 +39,6 @@ def pred_mode(img):
  
   if pred == 0:
     return "Legal ball" 
-
   else:
     return "No ball"
  
