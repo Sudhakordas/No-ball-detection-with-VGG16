@@ -1,12 +1,20 @@
 # Legal-balls-and-No-balls-Image-Classification
 
-# bjective
+# Objective
 Objective of this project is to create a model that can classify a Legal ball or No ball.
 
 
 ## Intoduction
 Cricket is one of the most popular game in the recent world. There are some actionswhich create controversy in a cricket match. Signalling a delivary as legal and No is 
 one of the major task of the umpire. Any wrong decision can totally change the scenario of a cricket match. There is a need of automate system which can roughly provide the probability of bowled being delevered is legal or not. I create this end  to end web app which can classify a image properly. Where i used manually created CNN model and transfer learning model(VGG16).
+
+### Legal ball
+
+![Crick](https://github.com/Sudhakordas/No-ball-detection-with-VGG16/blob/master/static/image/Crick-1.JPG)
+
+### No ball
+
+![Crick-2](https://github.com/Sudhakordas/No-ball-detection-with-VGG16/blob/master/static/image/Cricket-2.JPG)
 
 
  
