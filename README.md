@@ -20,59 +20,102 @@ one of the major task of the umpire. Any wrong decision can totally change the s
  
 
 
-### Methods / Algorithms 
+### Workflow
+
+First challenges in this project is to collect tthe dataset. As there was no available dataset i have to create tthe dataset. That's i gather data from google search and many live matches. As collected dataset was not too large to make the model robust i used Data augmentation technique to make the dataet of almost 3500 imgages. 
+
+```python
+from keras.preprocessing.image import ImageDataGenerator ,array_to_img, img_to_array, load_img
+
+Datagen = ImageDataGenerator(
+        featurewise_center=True,
+        featurewise_std_normalization=True,
+        rotation_range = 30,
+        width_shift_range = .1,
+        height_shift_range = .1,
+        shear_range = .3,
+        #zoom_range = .0001,
+        horizontal_flip = True,
+       # vertical_flip=True,
+        fill_mode = 'nearest'
+        
+)
+```
+Then i import the VGG16 model and adjust according to our dataset and fit the model with imagesize of [100,100]. which provides a training accuracy of almost 100%(seems to be overfitted) and test accuracy  of 80%. And to make this project end to end i used the flask frmaework to build the backend and basic html to create the frontend. 
+
+```python
+
+#Import necessary libraries
+from flask import Flask, render_template, request
  
-We have deployed a Convolution Neural Network (CNN) based classification method with VGG19 to automatically detect and differentiate foot overstepping no balls from fair balls.
-We have used Transfer learning algorithms which uses the knowledge gained from solving one problem and applying it to another related problem. Transfer learning aims to transfer knowledge from a large dataset known as source domain to a smaller dataset named target domain. 
-In our model, we have used 5674 images of size 100 x 100 x 3  as input. Our input dataset contains images collected from google image search and various video clips from live matches.
-Some of the techniques used to increase our image dataset are:
-*Randomized Cropping
-*Changing contrast in various proportions
-*Changing brightness
-*Horizontal flipping
+import numpy as np
+import os
+import cv2
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
+from keras.models import load_model
 
-The images are manually annotated and contains two classes:
-No-ball
-Legal-ball
+from tensorflow.keras.applications.imagenet_utils import preprocess_input, decode_predictions
+from keras.preprocessing.image import ImageDataGenerator ,array_to_img, img_to_array, load_img
 
-We have used Keras and Tensorflow2.0 to build our model and generate results. Our model produces a score for both possible outcomes then each of them is converted to a probability by Sigmoid activation function.
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
 
-
-### How to work with the Model?
-
-Upload the test data set on google drive.
-Give the path of the dataset folder on the drive to variable path.
-Give  ‘y’ (correct output of images to be tested) as text file y.txt.
-The model will print accuracy score, precision, recall and F1 score for the test data
-
-### Model used for transfer learning
-VGG 19
-
-### Number of hiddel layers
-20
-
-### Number of epochs
-30
-
-### Optimizer
-adam
-
-### Metrics for evaluation
-Accuracy
-
-### Model train accuracy
-94.88 %
-
-### Model test accuracy
-89.45 %
-
-### Precision
-0.7722
-
-### Recall
-0.9950
-
-### F1 score
-0.8696
  
+# Model saved with Keras model.save()
+MODEL_PATH = 'No_ball_model.h5'
 
+# Load your trained model
+model = load_model(MODEL_PATH)
+ 
+print('@@ Model loaded')
+ 
+ 
+def pred_mode(img):
+  test_image = load_img(img, target_size = (100, 100)) # load image 
+  print("@@ Got Image for prediction")
+   
+  test_image = img_to_array(test_image)/255 # convert image to np array and normalize
+  test_image = np.expand_dims(test_image, axis = 0) # change dimention 3D to 4D
+   
+  result = model.predict(test_image).round(3) # predict class horse or human
+  print('@@ Raw result = ', result)
+   
+  pred = np.argmax(result) # get the index of max value
+ 
+  if pred == 0:
+    return "Legal ball" 
+  else:
+    return "No ball"
+ 
+     
+ 
+# Create flask instance
+app = Flask(__name__)
+ 
+# render index.html page
+@app.route("/", methods=['GET', 'POST'])
+def home():
+        return render_template('index.html')
+     
+   
+@app.route("/predict", methods = ['GET','POST'])
+def predict():
+     if request.method == 'POST':
+        file = request.files['image'] # fet input
+        filename = file.filename        
+        print("@@ Input posted = ", filename)
+         
+        file_path = os.path.join('static/user-upload', filename)
+        file.save(file_path)
+ 
+        print("@@ Predicting class......")
+        pred = pred_mode(file_path)
+               
+        return render_template('predict.html', pred_output = pred, user_image = file_path)
+     
+#Fo local system
+if __name__ == "__main__":
+    app.run(threaded=False,) 
+
+```
